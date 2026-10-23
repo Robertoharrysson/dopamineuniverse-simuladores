@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visualizador 3D · Allen Brain Atlas</title>
+<script type="module" src="https://unpkg.com/@google/model-viewer@3.4.0/dist/model-viewer.min.js"></script>
+<style>
+  :root{
+    --bg:#080e0f; --panel:#0d1617; --panel-2:#132022; --line:#203133; --line-2:#2d4447;
+    --fg:#dbe8e5; --mute:#8aa4a0; --dim:#5e7874; --accent:#7fd1c3; --accent-ink:#06201c;
+    color-scheme:dark;
+  }
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);
+    font:14px/1.45 -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
+  #head{background:var(--panel);border-bottom:1px solid var(--line);padding:14px 20px;
+    display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:12px}
+  #head h1{font-size:17px;margin:0;font-weight:600;letter-spacing:.2px}
+  #head .meta{color:var(--mute);font-size:12px;line-height:1.5;text-align:right}
+  #head .meta b{color:var(--fg);font-weight:500}
+  #stage{height:calc(100vh - 64px);height:calc(100dvh - 64px);position:relative}
+  model-viewer{width:100%;height:100%;--poster-color:transparent;background:
+    radial-gradient(circle at 50% 40%, #0f2023 0%, #060b0c 75%);}
+  #controls{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);
+    display:flex;gap:8px;background:rgba(13,22,23,.85);border:1px solid var(--line);
+    border-radius:10px;padding:6px;backdrop-filter:blur(4px)}
+  #controls button{background:transparent;border:1px solid transparent;color:var(--mute);
+    font:inherit;font-size:12px;padding:7px 12px;border-radius:7px;cursor:pointer}
+  #controls button:hover{color:var(--fg);border-color:var(--line-2)}
+  #controls button.on{background:var(--accent);color:var(--accent-ink);font-weight:600}
+  #hint{position:absolute;top:12px;left:16px;color:var(--dim);font-size:11px;
+    background:rgba(13,22,23,.7);padding:5px 9px;border-radius:6px;border:1px solid var(--line)}
+  #err{display:none;position:absolute;inset:0;align-items:center;justify-content:center;
+    text-align:center;padding:24px;color:var(--mute);font-size:13px}
+</style>
+</head>
+<body>
+  <div id="head">
+    <h1>Allen Brain Atlas — Visualizador 3D</h1>
+    <div class="meta">
+      Laboratório de Neuroquímica · Facultade de Bioloxía · Universidade de Vigo<br>
+      Coordenação científica: <b>Profa. Dra. Lílian Faro</b>, <b>Prof. Dr. Rafael Duran</b><br>
+      Desenvolvimento: <b>Roberto H. B. Tolentino</b>, Master Universitário em Neurociências
+    </div>
+  </div>
+  <div id="stage">
+    <model-viewer id="mv" src="allen_brain.glb" alt="Modelo 3D do atlas Allen Brain"
+      camera-controls touch-action="pan-y" auto-rotate rotation-per-second="8deg"
+      shadow-intensity="0.6" exposure="1.05" interaction-prompt="none">
+    </model-viewer>
+    <div id="hint">Arraste para girar · role para aproximar</div>
+    <div id="controls">
+      <button id="btnRotate" class="on">Auto-rotação</button>
+      <button id="btnReset">Repor vista</button>
+    </div>
+    <div id="err">
+      Não foi possível carregar o modelo (<code>allen_brain.glb</code>).<br>
+      Verifique se o arquivo está na mesma pasta desta página.
+    </div>
+  </div>
+<script>
+  const mv = document.getElementById('mv');
+  const btnRotate = document.getElementById('btnRotate');
+  const btnReset = document.getElementById('btnReset');
+  const err = document.getElementById('err');
+  const defaultOrbit = mv.getAttribute('camera-orbit');
+
+  btnRotate.addEventListener('click', () => {
+    const on = mv.hasAttribute('auto-rotate');
+    if (on) { mv.removeAttribute('auto-rotate'); btnRotate.classList.remove('on'); }
+    else { mv.setAttribute('auto-rotate',''); btnRotate.classList.add('on'); }
+  });
+  btnReset.addEventListener('click', () => {
+    mv.cameraOrbit = defaultOrbit || '0deg 75deg 105%';
+    mv.fieldOfView = '30deg';
+  });
+  mv.addEventListener('error', () => {
+    err.style.display = 'flex';
+    mv.style.visibility = 'hidden';
+  });
+</script>
+</body>
+</html>
